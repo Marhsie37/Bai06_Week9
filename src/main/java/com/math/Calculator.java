@@ -18,7 +18,7 @@ public class Calculator {
         logger.debug("Adding {} + {}", a, b);
         return a + b;
     }
-
+//them dong comment de check speed
     /**
      * Subtract two numbers.
      */
