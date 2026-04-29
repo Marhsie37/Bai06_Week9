@@ -1,0 +1,55 @@
+name: CI with JaCoCo Coverage Check
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-check-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Display Maven version
+        run: mvn --version
+
+      - name: Run tests and generate coverage report
+        run: mvn clean verify
+
+      - name: Upload JaCoCo coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage-report
+          path: target/site/jacoco/
+          retention-days: 14
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports/
+          retention-days: 7
+
+      - name: Display coverage summary
+        run: |
+          echo "========================================="
+          echo "JaCoCo Coverage Report Summary"
+          echo "========================================="
+          if [ -f target/site/jacoco/index.html ]; then
+            echo "✅ Coverage report generated at: target/site/jacoco/index.html"
+          else
+            echo "❌ Coverage report not found!"
+          fi
